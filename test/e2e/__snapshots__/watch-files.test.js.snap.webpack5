@@ -365,7 +365,7 @@ exports[`watchFiles option should work with options {} should reload when file c
   "ignorePermissionErrors": true,
   "ignored": [],
   "interval": 100,
-  "persistent": true,
+  "persistent": undefined,
   "usePolling": true,
 }
 `;
@@ -376,7 +376,7 @@ exports[`watchFiles option should work with options {} should reload when file c
   "atomic": false,
   "awaitWriteFinish": false,
   "binaryInterval": 300,
-  "followSymlinks": true,
+  "followSymlinks": undefined,
   "ignoreInitial": true,
   "ignorePermissionErrors": true,
   "ignored": [],
@@ -404,6 +404,7 @@ exports[`watchFiles option should work with options {} should reload when file c
 
 exports[`watchFiles option should work with options {} should reload when file content is changed 6`] = `
 {
+  "alwaysStat": undefined,
   "atomic": false,
   "awaitWriteFinish": false,
   "binaryInterval": 300,
@@ -423,6 +424,7 @@ exports[`watchFiles option should work with options {} should reload when file c
   "atomic": false,
   "awaitWriteFinish": false,
   "binaryInterval": 300,
+  "depth": undefined,
   "followSymlinks": false,
   "ignoreInitial": true,
   "ignorePermissionErrors": true,
@@ -441,7 +443,7 @@ exports[`watchFiles option should work with options {} should reload when file c
   "binaryInterval": 300,
   "followSymlinks": false,
   "ignoreInitial": true,
-  "ignorePermissionErrors": false,
+  "ignorePermissionErrors": undefined,
   "ignored": [],
   "interval": 100,
   "persistent": true,
