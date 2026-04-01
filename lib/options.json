@@ -850,7 +850,7 @@
           "$ref": "#/definitions/WatchFilesObject"
         }
       ],
-      "description": "Allows to configure list of directories/files to watch for file changes.",
+      "description": "Allows to configure list of globs/directories/files to watch for file changes.",
       "link": "https://webpack.js.org/configuration/dev-server/#devserverwatchfiles"
     },
     "WatchFilesObject": {
@@ -873,7 +873,7 @@
               "minLength": 1
             }
           ],
-          "description": "Path(s) of directories/files to watch for file changes."
+          "description": "Path(s) of globs/directories/files to watch for file changes."
         },
         "options": {
           "type": "object",

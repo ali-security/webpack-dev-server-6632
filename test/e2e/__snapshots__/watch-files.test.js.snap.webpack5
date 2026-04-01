@@ -20,6 +20,16 @@ exports[`watchFiles option should work with array config should reload when file
 
 exports[`watchFiles option should work with array config should reload when file content is changed: response status 1`] = `200`;
 
+exports[`watchFiles option should work with array of globs should reload when file content is changed: console messages 1`] = `
+[
+  "Hey.",
+]
+`;
+
+exports[`watchFiles option should work with array of globs should reload when file content is changed: page errors 1`] = `[]`;
+
+exports[`watchFiles option should work with array of globs should reload when file content is changed: response status 1`] = `200`;
+
 exports[`watchFiles option should work with directory and ignored option to filter files should not reload when a non-matching file is changed: response status 1`] = `200`;
 
 exports[`watchFiles option should work with directory and ignored option to filter files should reload when file content is changed: console messages 1`] = `
@@ -31,16 +41,6 @@ exports[`watchFiles option should work with directory and ignored option to filt
 exports[`watchFiles option should work with directory and ignored option to filter files should reload when file content is changed: page errors 1`] = `[]`;
 
 exports[`watchFiles option should work with directory and ignored option to filter files should reload when file content is changed: response status 1`] = `200`;
-
-exports[`watchFiles option should work with files resolved from glob should reload when file content is changed: console messages 1`] = `
-[
-  "Hey.",
-]
-`;
-
-exports[`watchFiles option should work with files resolved from glob should reload when file content is changed: page errors 1`] = `[]`;
-
-exports[`watchFiles option should work with files resolved from glob should reload when file content is changed: response status 1`] = `200`;
 
 exports[`watchFiles option should work with object with multiple paths should reload when file content is changed: console messages 1`] = `
 [
@@ -530,6 +530,16 @@ exports[`watchFiles option should work with options {} should reload when file c
 exports[`watchFiles option should work with options {} should reload when file content is changed: response status 7`] = `200`;
 
 exports[`watchFiles option should work with options {} should reload when file content is changed: response status 8`] = `200`;
+
+exports[`watchFiles option should work with string and glob should reload when file content is changed: console messages 1`] = `
+[
+  "Hey.",
+]
+`;
+
+exports[`watchFiles option should work with string and glob should reload when file content is changed: page errors 1`] = `[]`;
+
+exports[`watchFiles option should work with string and glob should reload when file content is changed: response status 1`] = `200`;
 
 exports[`watchFiles option should work with string and path to directory should reload when file content is changed: console messages 1`] = `
 [

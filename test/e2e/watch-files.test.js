@@ -156,7 +156,7 @@ describe("watchFiles option", () => {
     });
   });
 
-  describe("should work with files resolved from glob", () => {
+  describe("should work with string and glob", () => {
     const file = path.join(watchDir, "assets/example.txt");
     let compiler;
     let server;
@@ -166,13 +166,11 @@ describe("watchFiles option", () => {
     let consoleMessages;
 
     beforeEach(async () => {
-      const watchFiles = fs.globSync(path.join(watchDir, "**/*"));
-
       compiler = webpack(config);
 
       server = new Server(
         {
-          watchFiles,
+          watchFiles: `${watchDir}/**/*`,
           port,
         },
         compiler,
@@ -190,6 +188,79 @@ describe("watchFiles option", () => {
       await browser.close();
       await server.stop();
       fs.truncateSync(file);
+    });
+
+    it("should reload when file content is changed", async () => {
+      page
+        .on("console", (message) => {
+          consoleMessages.push(message);
+        })
+        .on("pageerror", (error) => {
+          pageErrors.push(error);
+        });
+
+      const response = await page.goto(`http://localhost:${port}/`, {
+        waitUntil: "networkidle0",
+      });
+
+      expect(response.status()).toMatchSnapshot("response status");
+
+      expect(consoleMessages.map((message) => message.text())).toMatchSnapshot(
+        "console messages",
+      );
+
+      expect(pageErrors).toMatchSnapshot("page errors");
+
+      // change file content
+      fs.writeFileSync(file, "Kurosaki Ichigo", "utf8");
+
+      await new Promise((resolve) => {
+        server.staticWatchers[0].on("change", async (changedPath) => {
+          // page reload
+          await page.waitForNavigation({ waitUntil: "networkidle0" });
+
+          expect(changedPath).toBe(file);
+
+          resolve();
+        });
+      });
+    });
+  });
+
+  describe("should work with array of globs", () => {
+    const file = path.join(watchDir, "assets/example.txt");
+    const other = path.join(watchDir, "assets/other.txt");
+    let compiler;
+    let server;
+    let page;
+    let browser;
+    let pageErrors;
+    let consoleMessages;
+
+    beforeEach(async () => {
+      compiler = webpack(config);
+
+      server = new Server(
+        {
+          watchFiles: [`${watchDir}/**/*.txt`, `${watchDir}/**/*.js`],
+          port,
+        },
+        compiler,
+      );
+
+      await server.start();
+
+      ({ page, browser } = await runBrowser());
+
+      pageErrors = [];
+      consoleMessages = [];
+    });
+
+    afterEach(async () => {
+      await browser.close();
+      await server.stop();
+      fs.truncateSync(file);
+      fs.truncateSync(other);
     });
 
     it("should reload when file content is changed", async () => {
