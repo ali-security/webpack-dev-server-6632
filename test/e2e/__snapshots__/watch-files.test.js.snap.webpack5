@@ -42,6 +42,18 @@ exports[`watchFiles option should work with directory and ignored option to filt
 
 exports[`watchFiles option should work with directory and ignored option to filter files should reload when file content is changed: response status 1`] = `200`;
 
+exports[`watchFiles option should work with ignored option using glob string should not reload when an ignored glob file is changed: response status 1`] = `200`;
+
+exports[`watchFiles option should work with ignored option using glob string should reload when file content is changed: console messages 1`] = `
+[
+  "Hey.",
+]
+`;
+
+exports[`watchFiles option should work with ignored option using glob string should reload when file content is changed: page errors 1`] = `[]`;
+
+exports[`watchFiles option should work with ignored option using glob string should reload when file content is changed: response status 1`] = `200`;
+
 exports[`watchFiles option should work with object with multiple paths should reload when file content is changed: console messages 1`] = `
 [
   "Hey.",
