@@ -37,6 +37,47 @@ This document serves as a migration guide for `webpack-dev-server@6.0.0`.
   };
   ```
 
+- Updated `chokidar` from v3 to v4. Glob patterns are no longer supported in `watchFiles`. If you previously used globs, you can watch a directory and filter with `ignored`:
+
+  v5:
+
+  ```js
+  module.exports = {
+    devServer: {
+      watchFiles: "src/**/*.js",
+    },
+  };
+  ```
+
+  v6:
+
+  ```js
+  module.exports = {
+    devServer: {
+      watchFiles: {
+        paths: "src",
+        options: {
+          ignored: (path, stats) => stats?.isFile() && !path.endsWith(".js"),
+        },
+      },
+    },
+  };
+  ```
+
+  Or resolve the glob before passing it:
+
+  ```js
+  const { globSync } = require("node:fs");
+
+  module.exports = {
+    devServer: {
+      watchFiles: globSync("src/**/*.js"),
+    },
+  };
+  ```
+
+  > **Note:** `fs.globSync` requires Node.js 22+. For Node.js 20, use a package like `fast-glob` or `tinyglobby`.
+
 - Now, webpack-dev-server adds WebSocket communication only when the `target` is set to a web-compatible environment. Previously, it also injected WebSocket communication if `resolve` contained a `conditionNames` entry with `browser` or if `externalsPresets.web` existed.
 
 - When retrieving the configuration in a multi-compiler setup, it will look for one that has a target compatible with a web environment. If it doesn’t find one, it will fall back to the first compiler found by webpack.
