@@ -1068,6 +1068,82 @@ describe("allowed hosts", () => {
       await server.stop();
     });
 
+    it(`should disconnect web socket client with arbitrary IP origin (CVE-2025-30360) ("${webSocketServer}")`, async () => {
+      const devServerHost = "127.0.0.1";
+      const devServerPort = port1;
+      const proxyHost = devServerHost;
+      const proxyPort = port2;
+
+      const compiler = webpack(config);
+      const devServerOptions = {
+        client: {
+          webSocketURL: {
+            port: port2,
+          },
+        },
+        webSocketServer,
+        port: devServerPort,
+        host: devServerHost,
+        allowedHosts: "auto",
+      };
+      const server = new Server(devServerOptions, compiler);
+
+      await server.start();
+
+      function startProxy(callback) {
+        const app = express();
+
+        app.use(
+          "/",
+          createProxyMiddleware({
+            // Emulation - set origin to an arbitrary IP that is NOT the configured host
+            onProxyReqWs: (proxyReq) => {
+              proxyReq.setHeader("origin", "http://192.168.1.100");
+            },
+            target: `http://${devServerHost}:${devServerPort}`,
+            ws: true,
+            changeOrigin: true,
+            logLevel: "warn",
+          })
+        );
+
+        return app.listen(proxyPort, proxyHost, callback);
+      }
+
+      const proxy = await new Promise((resolve) => {
+        const proxyCreated = startProxy(() => {
+          resolve(proxyCreated);
+        });
+      });
+
+      const { page, browser } = await runBrowser();
+
+      const pageErrors = [];
+      const consoleMessages = [];
+
+      page
+        .on("console", (message) => {
+          consoleMessages.push(message);
+        })
+        .on("pageerror", (error) => {
+          pageErrors.push(error);
+        });
+
+      await page.goto(`http://${proxyHost}:${proxyPort}/`, {
+        waitUntil: "networkidle0",
+      });
+
+      expect(consoleMessages.map((message) => message.text())).toMatchSnapshot(
+        "console messages"
+      );
+      expect(pageErrors).toMatchSnapshot("page errors");
+
+      proxy.close();
+
+      await browser.close();
+      await server.stop();
+    });
+
     it(`should disconnect web client using localhost to web socket server with the "auto" value ("${webSocketServer}")`, async () => {
       const devServerHost = "127.0.0.1";
       const devServerPort = port1;
@@ -1418,6 +1494,52 @@ describe("allowed hosts", () => {
           throw new Error("Validation didn't fail");
         }
       });
+
+      expect(response.status()).toMatchSnapshot("response status");
+
+      expect(consoleMessages.map((message) => message.text())).toMatchSnapshot(
+        "console messages"
+      );
+
+      expect(pageErrors).toMatchSnapshot("page errors");
+    });
+
+    it("should not allow arbitrary IP address in origin header (CVE-2025-30360)", async () => {
+      const options = {
+        allowedHosts: "auto",
+        host: "127.0.0.1",
+        port: port1,
+      };
+      // Test with an arbitrary IP address that is NOT the configured host
+      const headers = {
+        host: "127.0.0.1",
+        origin: "http://192.168.1.100",
+      };
+
+      server = new Server(options, compiler);
+
+      await server.start();
+
+      ({ page, browser } = await runBrowser());
+
+      page
+        .on("console", (message) => {
+          consoleMessages.push(message);
+        })
+        .on("pageerror", (error) => {
+          pageErrors.push(error);
+        });
+
+      const response = await page.goto(`http://127.0.0.1:${port1}/main.js`, {
+        waitUntil: "networkidle0",
+      });
+
+      // Origin header with arbitrary IP should be rejected
+      if (server.checkHeader(headers, "origin")) {
+        throw new Error(
+          "Validation should have failed for arbitrary IP in origin header"
+        );
+      }
 
       expect(response.status()).toMatchSnapshot("response status");
 
